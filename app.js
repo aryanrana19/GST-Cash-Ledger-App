@@ -19,9 +19,7 @@ let transactions = JSON.parse(localStorage.getItem(storageKey)) || [];
 function init() {
     // Set default datetime
     const now = new Date();
-    datetime.value = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-                    .toISOString()
-                    .slice(0, 16);
+    datetime.value = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     
     // Load existing transactions
     renderTransactions();
