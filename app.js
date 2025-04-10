@@ -158,7 +158,7 @@ function exportToCSV() {
     
     // Add transaction data
     transactions.forEach(t => {
-        csv += `${t.id}`,"${t.text}",`${t.amount}`,"${new Date(t.datetime).toLocaleString()}","${t.category}","${t.type}\n";
+      csv += `${t.id},"${t.text}",${t.amount},"${new Date(t.datetime).toLocaleString()}","${t.category}","${t.type}"\n`;
     });
 
     // Create download link
