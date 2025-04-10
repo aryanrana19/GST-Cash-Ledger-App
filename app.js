@@ -7,23 +7,43 @@ const form = document.getElementById('form');
 const text = document.getElementById('text');
 const amount = document.getElementById("amount");
 const datetime = document.getElementById("datetime");
+const category = document.getElementById('category'); // Added missing element
+const exportBtn = document.getElementById('exportBtn');
+const gstDisplay = document.getElementById('gst-display'); // Added missing element
 const storageKey = "business_transactions";
 
+// GST RATES BY CATEGORY
+const gstRates = {
+    'Electronics': 18,  // 18% GST
+    'Utilities': 5,     // 5% GST
+    'Office Supplies': 12, // 12% GST
+    'Non-Taxable': 0    // 0% GST
+};
 
-// DUMMY TRANSACTIONS
-const dummyTransactions = [
-    
-];
+// Initialize transactions
+let transactions = JSON.parse(localStorage.getItem(storageKey)) || [];
 
-// Initialize transactions with dummy data
-let transactions = [...dummyTransactions];
+// INITIALIZE APP
+function init() {
+    list.innerHTML = '';
+    transactions.forEach(addTransactionDOM);
+    updateValues();
+    setDefaultDateTime();
+}
 
-// ADD TRANSACTIONS TO THE DOM
+// SET DEFAULT DATETIME
+function setDefaultDateTime() {
+    const now = new Date();
+    datetime.value = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+                   .toISOString()
+                   .slice(0, 16);
+}
+
+// ADD TRANSACTION TO DOM
 function addTransactionDOM(transaction) {
     const sign = transaction.amount < 0 ? '-' : '+';
     const item = document.createElement("li");
     
-    // Format date for display
     const transactionDate = new Date(transaction.datetime);
     const formattedDate = transactionDate.toLocaleDateString('en-IN', {
         day: '2-digit',
@@ -43,185 +63,114 @@ function addTransactionDOM(transaction) {
             <span class="transaction-time">${formattedTime}</span>
         </div>
         <span class="transaction-text">${transaction.text}</span>
+        <span class="transaction-category"></span>
         <span class="transaction-amount">${sign}₹${Math.abs(transaction.amount)}</span>
         <button class="delete-btn" onClick="removeTransaction(${transaction.id})">X</button>
     `;
     list.appendChild(item);
 }
 
-// Set default datetime on load
-window.onload = function() {
-    const now = new Date();
-    // Format for datetime-local input (YYYY-MM-DDTHH:MM)
-    const formattedNow = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-                          .toISOString()
-                          .slice(0, 16);
-    datetime.value = formattedNow;
-};
-
-// DISPLAY BALANCE AND VALUES
-function updateValues() {
-    const amounts = transactions.map(transaction => transaction.amount);
-
-    const total = amounts.reduce((acc, item) => acc += item, 0).toFixed(2);
-    const income = amounts.filter(item => item > 0).reduce((acc, item) => acc + item, 0).toFixed(2);
-    const expense = (amounts.filter(item => item < 0).reduce((acc, item) => acc + item, 0) * -1).toFixed(2);
-
-    balance.innerText = `₹${total}`;
-    money_plus.innerText = `₹${income}`;
-    money_minus.innerText = `₹${expense}`;
-}
-
-// ADD TRANSACTION (INCOME OR EXPENSE)
+// ADD NEW TRANSACTION
 function addTransaction(e, type) {
     e.preventDefault();
 
     if (text.value.trim() === '' || amount.value.trim() === '' || category.value === '') {
         alert("Please fill all fields");
-    }else{
-        const transaction = {
-            id: generateID(),
-            text: text.value,
-            amount: type === 'income' ? +amount.value : -amount.value,
-            datetime: datetime.value,
-            category: category.value,
-            type: type // 'income' or 'expense'
-        };
-        transactions.push(transaction);
-        localStorage.setItem(storageKey, JSON.stringify(transactions))
-        addTransactionDOM(transaction);
-        updateValues();
-
-        // Clear form
-        text.value = '';
-        amount.value = '';
-        datetime.value = '';
+        return;
     }
+
+    const transaction = {
+        id: generateID(),
+        text: text.value,
+        amount: type === 'income' ? +amount.value : -amount.value,
+        datetime: datetime.value,
+        category: category.value,
+        type: type
+    };
+
+    transactions.push(transaction);
+    saveTransactions();
+    addTransactionDOM(transaction);
+    updateValues();
+    resetForm();
 }
 
-// LOAD FUNCTION
-function loadTransaction(){
-    const savedTransactions = localStorage.getItem(storageKey)
-    if(savedTransactions){
-        transactions = JSON.parse(savedTransactions)
-        init()
-    }
+// UPDATE ALL CALCULATIONS
+function updateValues() {
+    const amounts = transactions.map(t => t.amount);
+    
+    // Balance, Income, Expense
+    const total = amounts.reduce((sum, amt) => sum + amt, 0).toFixed(2);
+    const income = amounts.filter(amt => amt > 0).reduce((sum, amt) => sum + amt, 0).toFixed(2);
+    const expense = Math.abs(amounts.filter(amt => amt < 0).reduce((sum, amt) => sum + amt, 0)).toFixed(2);
+
+    balance.innerText = `₹${total}`;
+    money_plus.innerText = `+₹${income}`;
+    money_minus.innerText = `-₹${expense}`;
+    
+    // GST Calculation
+    const gstOwed = calculateGST();
+    gstDisplay.textContent = `₹${gstOwed.toFixed(2)}`;
 }
 
-// GENERATE ID FUNCTION
-function generateID() {
-    return Math.floor(Math.random() * 1000000);
+// CALCULATE GST BY CATEGORY
+function calculateGST() {
+    return transactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => {
+            const rate = (gstRates[t.category] || 0) / 100;
+            return sum + (Math.abs(t.amount) * rate);
+        }, 0);
 }
 
-// REMOVE TRANSACTION FUNCTION
+// REMOVE TRANSACTION
 function removeTransaction(id) {
-    transactions = transactions.filter(transaction => transaction.id !== id); // Remove transaction by ID
-    init(); // Reinitialize the page after deletion
+    transactions = transactions.filter(t => t.id !== id);
+    saveTransactions();
+    init();
 }
 
-// INIT FUNCTION
-function init() {
-    list.innerHTML = ''; // Clear the list before rendering
-
-    // Loop through all transactions and add them to the DOM
-    transactions.forEach(addTransactionDOM);
-    updateValues(); // Update balance, income, and expense
+// SAVE TO LOCAL STORAGE
+function saveTransactions() {
+    localStorage.setItem(storageKey, JSON.stringify(transactions));
 }
 
-// Initialize the app with dummy transactions
-init();
-
-// EVENT LISTENERS FOR ADD INCOME AND ADD EXPENSE BUTTONS
-document.querySelector('.btn-inc').addEventListener('click', function (e) {
-    addTransaction(e, 'income'); // Pass 'income' to add positive amount
-});
-
-document.querySelector('.btn-exp').addEventListener('click', function (e) {
-    addTransaction(e, 'expense'); // Pass 'expense' to add negative amount
-});
-
-
-// EXPORT BUTTON
-
-// Add to your DOM elements
-const exportBtn = document.getElementById('exportBtn');
-
-// Export to CSV function
+// EXPORT TO CSV
 function exportToCSV() {
     if (transactions.length === 0) {
         alert("No transactions to export!");
         return;
     }
 
-    // Prepare CSV headers
-    let csv = 'ID,Description,Amount,Date,Category,Type\n';
-    
-    // Add transaction data
+    let csv = 'ID,Description,Amount,Date,Category,Type,GST Rate\n';
     transactions.forEach(t => {
-      csv += `${t.id},"${t.text}",${t.amount},"${new Date(t.datetime).toLocaleString()}","${t.category}","${t.type}"\n`;
+        const rate = t.type === 'expense' ? gstRates[t.category] || 0 : 0;
+        csv += `${t.id},"${t.text}",${t.amount},"${new Date(t.datetime).toLocaleString()}","${t.category}","${t.type}","${rate}%"\n`;
     });
 
-    // Create download link
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'transactions.csv';
-    document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
 }
 
-// Event listener
+// HELPER FUNCTIONS
+function generateID() {
+    return Math.floor(Math.random() * 1000000);
+}
+
+function resetForm() {
+    text.value = '';
+    amount.value = '';
+    setDefaultDateTime();
+}
+
+// EVENT LISTENERS
+document.querySelector('.btn-inc').addEventListener('click', (e) => addTransaction(e, 'income'));
+document.querySelector('.btn-exp').addEventListener('click', (e) => addTransaction(e, 'expense'));
 exportBtn.addEventListener('click', exportToCSV);
 
-
-// GST CALCULATIONS
-
-const gstRates = {
-    'Electronics': 18,  // Laptop (18% GST)
-    'Utilities':     5,  // Electricity (5% GST)
-    'Office Supplies': 12,
-    'Non-Taxable':    0   // e.g., Salaries
-  };
-
-function calculateGST() {
-    const taxableExpenses = transactions
-      .filter(t => t.type === 'expense')
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-    
-    return taxableExpenses * 0.18; // 18% GST
-  }
-  
-  // Add to your updateValues() function
-  function updateValues() {
-    // ... (your existing code) ...
-    const amounts = transactions.map(t => t.amount);
-  
-  // TOTAL BALANCE (income - expenses)
-  const total = amounts.reduce((sum, amount) => sum + amount, 0).toFixed(2);
-  
-  // TOTAL INCOME (positive amounts)
-  const income = amounts
-    .filter(amount => amount > 0)
-    .reduce((sum, amount) => sum + amount, 0)
-    .toFixed(2);
-  
-  // TOTAL EXPENSES (negative amounts, converted to positive)
-  const expense = amounts
-    .filter(amount => amount < 0)
-    .reduce((sum, amount) => sum + amount, 0) * -1
-    .toFixed(2);
-
-  // Update the DOM
-  balance.innerText = `₹${total}`;
-  money_plus.innerText = `+₹${income}`;
-  money_minus.innerText = `-₹${expense}`;
-    // Add GST display
-    const gstOwed = calculateGST();
-    document.getElementById('gst-display').textContent = `₹${gstOwed.toFixed(2)}`;
-  }
-
-
-
-loadTransaction()
+// INITIALIZE APP
+init();
