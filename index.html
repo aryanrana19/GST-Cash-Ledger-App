@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="tracker">
+        <h2>Expense Tracker</h2>
+        <div class="container">
+            <h4>Your Balance</h4>
+            <h1 id="balance">₹ 0.00</h1>
+            
+            <div class="gst-container">
+                <h4>GST Owed</h4>
+                <p id="gst-display">₹0.00</p>
+            </div>
+
+            <div class="inc-exp-container">
+                <div>
+                    <h4>Income</h4>
+                    <p id="money-plus" class="money plus">+₹0.00</p>
+                </div>
+                <div>
+                    <h4>Expense</h4>
+                    <p id="money-minus" class="money minus">-₹0.00</p>
+                </div>
+            </div>
+
+            <h3>Add New Transaction</h3>
+            <form id="form">
+                <div class="form-control">
+                    <label for="text">Text</label>
+                    <input type="text" id="text" placeholder="Enter description...">
+                </div>
+                <div class="form-control">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" placeholder="Enter amount...">
+                </div>
+                <div class="form-control">
+                    <label for="datetime">Date & Time</label>
+                    <input type="datetime-local" id="datetime">
+                </div>
+                <div class="form-control">
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="">Select Category</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Office Supplies">Office Supplies</option>
+                        <option value="Non-Taxable">Non-Taxable</option>
+                    </select>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-inc">Add Income</button>
+                    <button class="btn-exp">Add Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="history-tab">
+        <h2>History</h2>
+        <button id="exportBtn" class="btn-export">Export to CSV</button>
+        <ul id="list" class="list"></ul>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
