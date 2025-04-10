@@ -115,8 +115,9 @@ function generateID() {
 
 // REMOVE TRANSACTION FUNCTION
 function removeTransaction(id) {
-    transactions = transactions.filter(transaction => transaction.id !== id); // Remove transaction by ID
-    init(); // Reinitialize the page after deletion
+  transactions = transactions.filter(transaction => transaction.id !== id);
+  localStorage.setItem(storageKey, JSON.stringify(transactions)); // Add this line
+  init();
 }
 
 // INIT FUNCTION
@@ -221,7 +222,6 @@ function calculateGST() {
     const gstOwed = calculateGST();
     document.getElementById('gst-display').textContent = `₹${gstOwed.toFixed(2)}`;
   }
-
 
 
 loadTransaction()
