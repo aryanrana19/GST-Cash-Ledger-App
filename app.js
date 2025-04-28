@@ -223,3 +223,9 @@ exportBtn.addEventListener('click', exportToCSV);
 
 // Initialize the app
 init();
+
+
+
+// ========================================================================================================================================
+// DATA VISUALIZATION 
+

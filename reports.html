@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Expense Tracker - Data Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .chart-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            position: relative;
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+        .summary-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .summary-box {
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .summary-box.income {
+            background-color: rgba(46, 204, 113, 0.1);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+        .summary-box.expense {
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+        .summary-box.balance {
+            background-color: rgba(52, 152, 219, 0.1);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+        .summary-box.gst {
+            background-color: rgba(155, 89, 182, 0.1);
+            border: 1px solid rgba(155, 89, 182, 0.3);
+        }
+        .summary-title {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        .summary-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .time-filter {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .filter-btn {
+            padding: 8px 15px;
+            border: none;
+            background-color: #f1f2f6;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover {
+            background-color: #e2e5e9;
+        }
+        .filter-btn.active {
+            background-color: #3498db;
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Business Expense Tracker</h1>
+            <p>Data Visualization Dashboard</p>
+        </div>
+
+        <div class="time-filter">
+            <button class="filter-btn active" data-period="all">All Time</button>
+            <button class="filter-btn" data-period="month">This Month</button>
+            <button class="filter-btn" data-period="quarter">Last 3 Months</button>
+            <button class="filter-btn" data-period="year">This Year</button>
+        </div>
+
+        <div class="summary-container">
+            <div class="summary-grid">
+                <div class="summary-box balance">
+                    <div class="summary-title">Total Balance</div>
+                    <div class="summary-value" id="summary-balance">₹0.00</div>
+                </div>
+                <div class="summary-box income">
+                    <div class="summary-title">Total Income</div>
+                    <div class="summary-value" id="summary-income">₹0.00</div>
+                </div>
+                <div class="summary-box expense">
+                    <div class="summary-title">Total Expenses</div>
+                    <div class="summary-value" id="summary-expense">₹0.00</div>
+                </div>
+                <div class="summary-box gst">
+                    <div class="summary-title">Total GST</div>
+                    <div class="summary-value" id="summary-gst">₹0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="chart-container">
+                <div class="chart-title">Income vs Expenses</div>
+                <canvas id="incomeVsExpenseChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Expense Categories</div>
+                <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Balance Trend</div>
+                <canvas id="balanceTrendChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">GST by Category</div>
+                <canvas id="gstByCategory"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart.js Visualization for Expense Tracker
+
+// Storage key should match your expense tracker app
+const storageKey = "business_transactions";
+const gstRates = {
+    'Electronics & IT Equipment': 18,
+    'Office Supplies': 12,
+    'Food & Beverages': 5,
+    'Professional Services': 18,
+    'Rent & Utilities': 18,
+    'Travel & Transportation': 5,
+    'Marketing & Advertising': 18,
+    'Non-Taxable': 0
+};
+
+// Chart objects - declare globally so we can update them
+let incomeVsExpenseChart;
+let categoryChart;
+let balanceTrendChart;
+let gstByCategoryChart;
+
+// Color palettes for consistent styling
+const colors = {
+    income: 'rgba(46, 204, 113, 0.7)',
+    expense: 'rgba(231, 76, 60, 0.7)',
+    balance: 'rgba(52, 152, 219, 0.7)',
+    gst: 'rgba(155, 89, 182, 0.7)',
+    categories: [
+        'rgba(241, 196, 15, 0.7)',
+        'rgba(52, 152, 219, 0.7)',
+        'rgba(46, 204, 113, 0.7)',
+        'rgba(155, 89, 182, 0.7)',
+        'rgba(231, 76, 60, 0.7)',
+        'rgba(243, 156, 18, 0.7)',
+        'rgba(26, 188, 156, 0.7)',
+        'rgba(41, 128, 185, 0.7)'
+    ]
+};
+
+// Load transactions from localStorage
+function getTransactions() {
+    const savedTransactions = localStorage.getItem(storageKey);
+    return savedTransactions ? JSON.parse(savedTransactions) : [];
+}
+
+// Filter transactions based on time period
+function filterTransactionsByTime(transactions, period) {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    
+    let startDate;
+    
+    switch (period) {
+        case 'month':
+            startDate = new Date(currentYear, currentMonth, 1);
+            break;
+        case 'quarter':
+            startDate = new Date(now.setMonth(now.getMonth() - 3));
+            break;
+        case 'year':
+            startDate = new Date(currentYear, 0, 1);
+            break;
+        case 'all':
+        default:
+            return transactions; // Return all transactions
+    }
+    
+    return transactions.filter(t => new Date(t.datetime) >= startDate);
+}
+
+// Update summary boxes with filtered transaction data
+function updateSummary(transactions) {
+    // Calculate totals from transactions
+    const income = transactions
+        .filter(t => t.amount > 0)
+        .reduce((sum, t) => sum + t.amount, 0);
+    
+    const expense = transactions
+        .filter(t => t.amount < 0)
+        .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    
+    const balance = income - expense;
+    
+    // Calculate GST
+    const gst = transactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => {
+            const categoryRate = gstRates[t.category] || 0;
+            const gstAmount = Math.abs(t.amount) * (categoryRate / 100);
+            return sum + gstAmount;
+        }, 0);
+    
+    // Update the summary boxes
+    document.getElementById('summary-balance').textContent = `₹${balance.toFixed(2)}`;
+    document.getElementById('summary-income').textContent = `₹${income.toFixed(2)}`;
+    document.getElementById('summary-expense').textContent = `₹${expense.toFixed(2)}`;
+    document.getElementById('summary-gst').textContent = `₹${gst.toFixed(2)}`;
+}
+
+// Group transactions by month for time-based charts
+function groupTransactionsByMonth(transactions) {
+    const grouped = {};
+    
+    transactions.forEach(transaction => {
+        const date = new Date(transaction.datetime);
+        const monthYear = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+        
+        if (!grouped[monthYear]) {
+            grouped[monthYear] = {
+                income: 0,
+                expense: 0,
+                balance: 0
+            };
+        }
+        
+        if (transaction.amount > 0) {
+            grouped[monthYear].income += transaction.amount;
+        } else {
+            grouped[monthYear].expense += Math.abs(transaction.amount);
+        }
+        
+        // Update running balance
+        grouped[monthYear].balance += transaction.amount;
+    });
+    
+    // Convert to arrays for Chart.js
+    const labels = Object.keys(grouped).sort((a, b) => {
+        // Sort month-year strings chronologically
+        const dateA = new Date(a);
+        const dateB = new Date(b);
+        return dateA - dateB;
+    });
+    
+    const incomeData = labels.map(month => grouped[month].income);
+    const expenseData = labels.map(month => grouped[month].expense);
+    const balanceData = labels.map(month => grouped[month].balance);
+    
+    return { labels, incomeData, expenseData, balanceData };
+}
+
+// Group expenses by category
+function groupExpensesByCategory(transactions) {
+    const expensesByCategory = {};
+    const gstByCategory = {};
+    
+    transactions
+        .filter(t => t.amount < 0) // Only expenses
+        .forEach(transaction => {
+            const category = transaction.category || 'Uncategorized';
+            const amount = Math.abs(transaction.amount);
+            
+            // Sum up expenses by category
+            if (!expensesByCategory[category]) {
+                expensesByCategory[category] = 0;
+            }
+            expensesByCategory[category] += amount;
+            
+            // Calculate GST by category
+            if (!gstByCategory[category]) {
+                gstByCategory[category] = 0;
+            }
+            const categoryRate = gstRates[category] || 0;
+            const gstAmount = amount * (categoryRate / 100);
+            gstByCategory[category] += gstAmount;
+        });
+    
+    // Sort categories by expense amount (descending)
+    const sortedCategories = Object.keys(expensesByCategory).sort(
+        (a, b) => expensesByCategory[b] - expensesByCategory[a]
+    );
+    
+    const categoryAmounts = sortedCategories.map(cat => expensesByCategory[cat]);
+    const gstAmounts = sortedCategories.map(cat => gstByCategory[cat]);
+    
+    return { 
+        categories: sortedCategories, 
+        amounts: categoryAmounts,
+        gstAmounts: gstAmounts
+    };
+}
+
+// Create Income vs Expense Chart
+function createIncomeVsExpenseChart(labels, incomeData, expenseData) {
+    const ctx = document.getElementById('incomeVsExpenseChart').getContext('2d');
+    
+    // Destroy existing chart if it exists
+    if (incomeVsExpenseChart) {
+        incomeVsExpenseChart.destroy();
+    }
+    
+    incomeVsExpenseChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Income',
+                    data: incomeData,
+                    backgroundColor: colors.income,
+                    borderColor: colors.income,
+                    borderWidth: 1
+                },
+                {
+                    label: 'Expenses',
+                    data: expenseData,
+                    backgroundColor: colors.expense,
+                    borderColor: colors.expense,
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Amount (₹)'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ₹${context.raw.toFixed(2)}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Create Category Breakdown Chart (Doughnut/Pie)
+function createCategoryChart(categories, amounts) {
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    
+    // Destroy existing chart if it exists
+    if (categoryChart) {
+        categoryChart.destroy();
+    }
+
+    // Generate colors for each category
+    const backgroundColors = categories.map((_, index) => 
+        colors.categories[index % colors.categories.length]
+    );
+    
+    categoryChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: categories,
+            datasets: [{
+                data: amounts,
+                backgroundColor: backgroundColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 12
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ₹${value.toFixed(2)} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Create Balance Trend Chart
+function createBalanceTrendChart(labels, balanceData) {
+    const ctx = document.getElementById('balanceTrendChart').getContext('2d');
+    
+    // Destroy existing chart if it exists
+    if (balanceTrendChart) {
+        balanceTrendChart.destroy();
+    }
+    
+    balanceTrendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Balance',
+                data: balanceData,
+                backgroundColor: colors.balance,
+                borderColor: colors.balance,
+                borderWidth: 2,
+                tension: 0.1,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Amount (₹)'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Balance: ₹${context.raw.toFixed(2)}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Create GST by Category Chart
+function createGSTByCategoryChart(categories, gstAmounts) {
+    const ctx = document.getElementById('gstByCategory').getContext('2d');
+    
+    // Destroy existing chart if it exists
+    if (gstByCategoryChart) {
+        gstByCategoryChart.destroy();
+    }
+    
+    // Generate colors for each category
+    const backgroundColors = categories.map((_, index) => 
+        colors.categories[index % colors.categories.length]
+    );
+    
+    gstByCategoryChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: categories,
+            datasets: [{
+                label: 'GST Amount',
+                data: gstAmounts,
+                backgroundColor: backgroundColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'GST Amount (₹)'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `GST: ₹${context.raw.toFixed(2)}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Main function to update all charts and summary
+function updateDashboard(timePeriod) {
+    // Get all transactions
+    let transactions = getTransactions();
+    
+    // Apply time filter
+    transactions = filterTransactionsByTime(transactions, timePeriod);
+    
+    // Update summary boxes
+    updateSummary(transactions);
+    
+    // Skip chart creation if there are no transactions
+    if (transactions.length === 0) {
+        // Display "No data" message in charts
+        const noDataMessage = {
+            id: 'noDataMessage',
+            beforeDraw: (chart) => {
+                const { ctx, width, height } = chart;
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = '16px Arial';
+                ctx.fillStyle = '#7f8c8d';
+                ctx.fillText('No transaction data available', width / 2, height / 2);
+                ctx.restore();
+            }
+        };
+        
+        // Create empty charts with the no data message
+        createIncomeVsExpenseChart([], [], []);
+        createCategoryChart([], []);
+        createBalanceTrendChart([], []);
+        createGSTByCategoryChart([], []);
+        return;
+    }
+    
+    // Group transactions by month
+    const { labels, incomeData, expenseData, balanceData } = groupTransactionsByMonth(transactions);
+    
+    // Group expenses by category
+    const { categories, amounts, gstAmounts } = groupExpensesByCategory(transactions);
+    
+    // Create/update charts
+    createIncomeVsExpenseChart(labels, incomeData, expenseData);
+    createCategoryChart(categories, amounts);
+    createBalanceTrendChart(labels, balanceData);
+    createGSTByCategoryChart(categories, gstAmounts);
+}
+
+// Initialize the dashboard when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    updateDashboard('all'); // Start with all-time data
+    
+    // Add event listeners to filter buttons
+    document.querySelectorAll('.filter-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Update dashboard with selected time period
+            updateDashboard(this.dataset.period);
+        });
+    });
+});
+    </script>
+</body>
+</html>
