@@ -225,6 +225,110 @@ exportBtn.addEventListener('click', exportToCSV);
 init();
 
 
+// IMPORT FUNCTION
+
+// Add these DOM element references at the top with your other DOM elements
+const importBtn = document.getElementById('importBtn');
+const fileInput = document.getElementById('fileInput');
+
+// Add this function to handle CSV imports
+function importFromCSV(csvText) {
+    // Parse CSV (simple implementation - consider using a library like PapaParse for production)
+    const lines = csvText.split('\n');
+    const headers = lines[0].split(',');
+    
+    // Find column indices
+    const idIndex = headers.findIndex(h => h.trim().toLowerCase() === 'id');
+    const descriptionIndex = headers.findIndex(h => h.trim().toLowerCase() === 'description');
+    const amountIndex = headers.findIndex(h => h.trim().toLowerCase() === 'amount');
+    const dateIndex = headers.findIndex(h => h.trim().toLowerCase() === 'date');
+    const categoryIndex = headers.findIndex(h => h.trim().toLowerCase() === 'category');
+    const typeIndex = headers.findIndex(h => h.trim().toLowerCase() === 'type');
+    
+    // Validate required columns
+    if (descriptionIndex === -1 || amountIndex === -1) {
+        alert('CSV must contain at least Description and Amount columns');
+        return;
+    }
+    
+    let importedCount = 0;
+    const importedTransactions = [];
+    
+    // Process each line (skip header)
+    for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue; // Skip empty lines
+        
+        // Split by comma, but handle quoted values that might contain commas
+        const values = lines[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+        if (values.length < 2) continue; // Skip malformed lines
+        
+        // Clean up quoted values
+        const cleanValues = values.map(val => val.replace(/^"|"$/g, '').trim());
+        
+        // Create transaction object
+        const transaction = {
+            id: idIndex !== -1 && cleanValues[idIndex] ? Number(cleanValues[idIndex]) : generateID(),
+            text: descriptionIndex !== -1 ? cleanValues[descriptionIndex] : 'Imported item',
+            amount: amountIndex !== -1 ? Number(cleanValues[amountIndex]) : 0,
+            datetime: dateIndex !== -1 && cleanValues[dateIndex] ? new Date(cleanValues[dateIndex]).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16),
+            category: categoryIndex !== -1 && cleanValues[categoryIndex] ? cleanValues[categoryIndex] : 'Non-Taxable',
+            type: typeIndex !== -1 && cleanValues[typeIndex] ? cleanValues[typeIndex].toLowerCase() : (Number(cleanValues[amountIndex]) >= 0 ? 'income' : 'expense')
+        };
+        
+        // Validate transaction
+        if (isNaN(transaction.amount)) continue;
+        
+        // Ensure amount sign matches type
+        if (transaction.type === 'expense' && transaction.amount > 0) {
+            transaction.amount = -Math.abs(transaction.amount);
+        } else if (transaction.type === 'income' && transaction.amount < 0) {
+            transaction.amount = Math.abs(transaction.amount);
+        }
+        
+        importedTransactions.push(transaction);
+        importedCount++;
+    }
+    
+    // Add to existing transactions
+    if (importedCount > 0) {
+        transactions = [...transactions, ...importedTransactions];
+        localStorage.setItem(storageKey, JSON.stringify(transactions));
+        init(); // Refresh the UI
+        alert(`Successfully imported ${importedCount} transactions!`);
+    } else {
+        alert('No valid transactions found in the CSV file.');
+    }
+}
+
+// Event listeners for import functionality
+importBtn.addEventListener('click', function() {
+    fileInput.click();
+});
+
+fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+        alert('Please select a CSV file');
+        return;
+    }
+    
+    // Read file
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        importFromCSV(event.target.result);
+    };
+    reader.onerror = function() {
+        alert('Error reading file');
+    };
+    reader.readAsText(file);
+    
+    // Reset file input
+    fileInput.value = '';
+});
+
 
 // ========================================================================================================================================
 // DATA VISUALIZATION 

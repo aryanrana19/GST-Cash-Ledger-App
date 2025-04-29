@@ -110,3 +110,61 @@ canvas {
         grid-template-columns: 1fr;
     }
 }
+
+
+.prediction-card {
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    background-color: #f9f9f9;
+  }
+  
+  .prediction-item {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+  }
+  
+  .prediction-item .label {
+    font-weight: bold;
+    width: 150px;
+  }
+  
+  .prediction-item .value {
+    font-family: monospace;
+    font-size: 1.1em;
+    margin: 0 10px;
+  }
+  
+  .prediction-item .trend {
+    font-size: 0.9em;
+  }
+  
+  .trend.increasing { color: #e74c3c; }
+  .trend.decreasing { color: #2ecc71; }
+  .trend.stable { color: #3498db; }
+  
+  .model-status-container {
+    margin-bottom: 10px;
+    font-size: 0.8em;
+    color: #666;
+  }
+  
+  .prediction-results .initial-message {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: #3498db;
+  }
+  
+  .chart-container {
+    height: 300px;
+    margin-top: 20px;
+  }

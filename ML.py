@@ -10,7 +10,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 import matplotlib.pyplot as plt
 
 # Load data
-data = pd.read_csv('\generated_expense_income_data.csv')
+data = pd.read_csv('generated_expense_income_data.csv')
 
 # Show columns for debugging
 print("Data Columns:", data.columns.tolist())

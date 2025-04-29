@@ -66,10 +66,21 @@
         </div>
     </div>
 
-    <div class="history-tab">
+    <!-- <div class="history-tab">
         <h2>History</h2>
         <ul id="list" class="list"></ul>
         <button id="exportBtn" class="btn-export">Export</button>
+
+    </div> -->
+
+    <div class="history-tab">
+        <h2>History</h2>
+        <ul id="list" class="list"></ul>
+        <div class="btn-group">
+            <button id="importBtn" class="btn-import">Import CSV</button>
+            <button id="exportBtn" class="btn-export">Export to CSV</button>
+        </div>
+        <input type="file" id="fileInput" accept=".csv" style="display: none;">
     </div>
 
     <script src="app.js"></script>

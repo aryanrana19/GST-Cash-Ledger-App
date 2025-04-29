@@ -186,6 +186,28 @@ select:focus {
     background-color: #3a56e8;
 }
 
+.btn-import, .btn-export{
+    cursor: pointer;
+    background-color: #9c88ff;
+    box-shadow: var(--box-shadow);
+    color: #fff;
+    border: 0;
+    display: block;
+    font-size: 16px;
+    margin: 10px 0 30px;
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+}
+
+.btn-import:hover, .btn-export:hover {
+    background-color: #8070d8;
+}
+
+.btn-import:focus, .btn-export:focus {
+    outline: 0;
+}
+
 .history-tab {
     /* max-height: 100vh; */
     overflow-y: auto;
