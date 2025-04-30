@@ -165,6 +165,6 @@ canvas {
   }
   
   .chart-container {
-    height: 300px;
+    height: auto;
     margin-top: 20px;
   }
