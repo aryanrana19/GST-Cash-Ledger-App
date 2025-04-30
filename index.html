@@ -3,87 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Tracker</title>
+    <title>GST Cash Ledger</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="tracker">
-        <h2>Expense Tracker</h2>
-        <div class="container">
-            <h4>Your Balance</h4>
-            <h1 id="balance">₹ 0.00</h1>
-            
-            <div class="gst-container">
-                <h4>GST Owed</h4>
-                <p id="gst-display">₹0.00</p>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <h1>GST Cash Ledger</h1>
             </div>
+            <p class="tagline">Simplified Financial Management for GST</p>
+        </header>
 
-            <div class="inc-exp-container">
-                <div>
-                    <h4>Income</h4>
-                    <p id="money-plus" class="money plus">+₹0.00</p>
+        <main>
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon" style="background: linear-gradient(135deg, var(--income-color), rgba(45, 198, 83, 0.3));">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div class="card-content">
+                        <h2>Expense Tracker</h2>
+                        <p>Record, categorize, and manage your financial transactions with ease.</p>
+                        <a href="tracker.html" class="btn">Access Tracker <i class="fas fa-arrow-right"></i></a>
+                    </div>
                 </div>
-                <div>
-                    <h4>Expense</h4>
-                    <p id="money-minus" class="money minus">-₹0.00</p>
+
+                <div class="card">
+                    <div class="card-icon" style="background: linear-gradient(135deg, var(--balance-color), rgba(52, 152, 219, 0.3));">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="card-content">
+                        <h2>Data Visualization Board</h2>
+                        <p>Visualize your financial data with interactive charts and reports.</p>
+                        <a href="reports.html" class="btn">View Reports <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon" style="background: linear-gradient(135deg, var(--gst-color), rgba(155, 89, 178, 0.3));">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="card-content">
+                        <h2>Future Insights Report</h2>
+                        <p>Advanced analytics and predictive insights for better financial planning.</p>
+                        <a href="ml-vis.html" class="btn">Explore Insights <i class="fas fa-arrow-right"></i></a>
+                    </div>
                 </div>
             </div>
+        </main>
 
-            <h3>Add New Transaction</h3>
-            <form id="form">
-                <div class="form-control">
-                    <label for="text">Text</label>
-                    <input type="text" id="text" placeholder="Enter description...">
-                </div>
-                <div class="form-control">
-                    <label for="amount">Amount</label>
-                    <input type="number" id="amount" placeholder="Enter amount...">
-                </div>
-                <div class="form-control">
-                    <label for="datetime">Date & Time</label>
-                    <input type="datetime-local" id="datetime">
-                </div>
-                <div class="form-control">
-                    <label for="category">Category</label>
-                    <select id="category" required>
-                        <option value="">Select Category</option>
-                        <option value="Electronics & IT Equipment" data-gst="18">Electronics & IT Equipment (18% GST)</option>
-                        <option value="Office Supplies" data-gst="12">Office Supplies (12% GST)</option>
-                        <option value="Food & Beverages" data-gst="5">Food & Beverages (5% GST)</option>
-                        <option value="Professional Services" data-gst="18">Professional Services (18% GST)</option>
-                        <option value="Rent & Utilities" data-gst="18">Rent & Utilities (18% GST)</option>
-                        <option value="Travel & Transportation" data-gst="5">Travel & Transportation (5% GST)</option>
-                        <option value="Marketing & Advertising" data-gst="18">Marketing & Advertising (18% GST)</option>
-                        <option value="Non-Taxable" data-gst="0">Non-Taxable (0% GST)</option>
-                    </select>
-                </div>
-                <div class="btn-group">
-                    <button class="btn-inc">Add Income</button>
-                    <button class="btn-exp">Add Expense</button>
-                </div>
-            </form>
-        </div>
+        <footer>
+            <p>&copy; 2025 GST Cash Ledger. All rights reserved.</p>
+        </footer>
     </div>
-
-    <!-- <div class="history-tab">
-        <h2>History</h2>
-        <ul id="list" class="list"></ul>
-        <button id="exportBtn" class="btn-export">Export</button>
-
-    </div> -->
-
-    <div class="history-tab">
-        <h2>History</h2>
-        <ul id="list" class="list"></ul>
-        <div class="btn-group">
-            <button id="importBtn" class="btn-import">Import CSV</button>
-            <button id="exportBtn" class="btn-export">Export to CSV</button>
-        </div>
-        <input type="file" id="fileInput" accept=".csv" style="display: none;">
-    </div>
-
-    <script src="app.js"></script>
 </body>
 </html>

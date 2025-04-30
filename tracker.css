@@ -1,0 +1,514 @@
+:root {
+    --primary-color: #3a86ff;
+    --primary-light: #ebf2ff;
+    --primary-dark: #2667cc;
+    --secondary-color: #8ecae6;
+    --income-color: #2dc653;
+    --income-light: #e6f7ed;
+    --expense-color: #e63946;
+    --expense-light: #fde8ea;
+    --dark-color: #1d3557;
+    --text-color: #293241;
+    --text-muted: #6c757d;
+    --background-color: #f7f9fc;
+    --card-color: #ffffff;
+    --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05), 0 6px 6px rgba(0, 0, 0, 0.06);
+    --hover-shadow: 0 14px 28px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.08);
+    --border-radius: 12px;
+    --border-color: #e9ecef;
+    --transition: all 0.3s ease;
+  }
+  
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: 'Inter', 'Segoe UI', Roboto, -apple-system, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px;
+    padding: 30px;
+    min-height: 100vh;
+  }
+  
+  .tracker, .history-tab {
+    background-color: var(--card-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 30px;
+    width: 100%;
+    max-width: 700px;
+    height: 85vh;
+    overflow-y: auto;
+    transition: var(--transition);
+  }
+  
+  .tracker:hover, .history-tab:hover {
+    box-shadow: var(--hover-shadow);
+  }
+  
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: var(--border-color);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+  }
+  
+  h1, h2, h3, h4 {
+    color: var(--dark-color);
+    font-weight: 700;
+  }
+  
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    text-align: center;
+    position: relative;
+    padding-bottom: 15px;
+  }
+  
+  h1::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background-color: var(--primary-color);
+    border-radius: 2px;
+  }
+  
+  h2 {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border-color);
+  }
+  
+  h3 {
+    font-size: 1.3rem;
+    margin: 30px 0 20px;
+    color: var(--dark-color);
+  }
+  
+  .inc-exp-container {
+    background-color: var(--card-color);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    margin: 25px 0;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+  }
+  
+  .inc-exp-container > div {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .inc-exp-container > div:first-of-type {
+    background-color: var(--income-light);
+    margin-right: 10px;
+  }
+  
+  .inc-exp-container > div:last-of-type {
+    background-color: var(--expense-light);
+    margin-left: 10px;
+  }
+  
+  .inc-exp-container h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+  }
+  
+  .money {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 5px 0;
+    display: block;
+  }
+  
+  .money.plus {
+    color: var(--income-color);
+  }
+  
+  .money.minus {
+    color: var(--expense-color);
+  }
+  
+  .gst-container {
+    background: var(--card-color);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin: 25px 0;
+    text-align: center;
+    transition: var(--transition);
+    border-left: 4px solid var(--secondary-color);
+  }
+  
+  .gst-container h4 {
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  #gst-display {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--dark-color);
+  }
+  
+  .form-control {
+    margin-bottom: 20px;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--dark-color);
+    font-size: 0.95rem;
+  }
+  
+  input[type='text'],
+  input[type='number'],
+  input[type='datetime-local'],
+  select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+    color: var(--text-color);
+    background-color: var(--card-color);
+  }
+  
+  input:focus,
+  select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.15);
+  }
+  
+  input::placeholder {
+    color: #adb5bd;
+  }
+  
+  .btn-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+  }
+  
+  .btn-inc, .btn-exp, .btn-export, .btn-import {
+    cursor: pointer;
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 14px;
+    flex: 1;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .btn-inc {
+    background-color: var(--income-color);
+  }
+  
+  .btn-exp {
+    background-color: var(--expense-color);
+  }
+  
+  .btn-export, .btn-import {
+    background-color: var(--primary-color);
+    margin-bottom: 20px;
+    width: 100%;
+  }
+  
+  .btn-inc:hover {
+    background-color: #25a745;
+    transform: translateY(-2px);
+  }
+  
+  .btn-exp:hover {
+    background-color: #d93240;
+    transform: translateY(-2px);
+  }
+  
+  .btn-export:hover, .btn-import:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+  
+  .btn-inc:active, .btn-exp:active, .btn-export:active, .btn-import:active {
+    transform: translateY(0);
+  }
+  
+  /* Add icons to buttons using pseudo-elements */
+  .btn-inc::before {
+    content: '+';
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-right: 5px;
+  }
+  
+  .btn-exp::before {
+    content: '-';
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-right: 5px;
+  }
+  
+  .btn-export::before {
+    content: '↑';
+    font-size: 1.1rem;
+  }
+  
+  .btn-import::before {
+    content: '↓';
+    font-size: 1.1rem;
+  }
+  
+  .history-tab {
+    overflow-y: auto;
+  }
+  
+  .list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .list li {
+    background: var(--card-color);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    padding: 16px 20px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+  }
+  
+  .list li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 14px rgba(0, 0, 0, 0.08);
+  }
+  
+  .list li.plus {
+    border-left: 5px solid var(--income-color);
+  }
+  
+  .list li.minus {
+    border-left: 5px solid var(--expense-color);
+  }
+  
+  .transaction-meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 110px;
+    margin-right: 15px;
+    padding-right: 15px;
+    border-right: 1px solid var(--border-color);
+  }
+  
+  .transaction-date {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--dark-color);
+  }
+  
+  .transaction-time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  
+  .transaction-text {
+    flex-grow: 1;
+    margin: 0 15px;
+    font-weight: 500;
+  }
+  
+  .transaction-amount {
+    font-weight: 700;
+    margin-right: 15px;
+    font-size: 1.1rem;
+  }
+  
+  .list li.plus .transaction-amount {
+    color: var(--income-color);
+  }
+  
+  .list li.minus .transaction-amount {
+    color: var(--expense-color);
+  }
+  
+  .delete-btn {
+    cursor: pointer;
+    background-color: var(--expense-light);
+    border: none;
+    color: var(--expense-color);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: var(--transition);
+    opacity: 0.7;
+  }
+  
+  .delete-btn:hover {
+    background-color: var(--expense-color);
+    color: white;
+    opacity: 1;
+  }
+  
+  /* Add a nice X icon with CSS */
+  .delete-btn::before {
+    content: '';
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  /* Add some media queries for better responsiveness */
+  @media (max-width: 768px) {
+    body {
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 15px;
+    }
+    
+    .tracker, .history-tab {
+      width: 100%;
+      max-width: 100%;
+      padding: 20px;
+      height: auto;
+      max-height: none;
+      margin-bottom: 30px;
+    }
+  
+    .inc-exp-container {
+      flex-direction: column;
+    }
+  
+    .inc-exp-container > div:first-of-type {
+      margin-right: 0;
+      margin-bottom: 15px;
+    }
+  
+    .inc-exp-container > div:last-of-type {
+      margin-left: 0;
+    }
+  
+    .btn-group {
+      flex-direction: column;
+    }
+  }
+  
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background-color: #121212;
+      --card-color: #1e1e1e;
+      --text-color: #e9ecef;
+      --dark-color: #f8f9fa;
+      --text-muted: #adb5bd;
+      --border-color: #2a2a2a;
+      --income-light: rgba(45, 198, 83, 0.1);
+      --expense-light: rgba(230, 57, 70, 0.1);
+      --primary-light: rgba(58, 134, 255, 0.1);
+    }
+    
+    input[type='text'],
+    input[type='number'],
+    input[type='datetime-local'],
+    select {
+      background-color: #2a2a2a;
+      color: var(--text-color);
+      border-color: #3a3a3a;
+    }
+    
+    input::placeholder {
+      color: #6c757d;
+    }
+    
+    .list li {
+      border-color: #2a2a2a;
+      background-color: #252525;
+    }
+  }
+  
+  /* Add some subtle animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .tracker, .history-tab, .list li {
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  /* Loading state animations for buttons */
+  .btn-inc.loading, .btn-exp.loading, .btn-export.loading, .btn-import.loading {
+    position: relative;
+    color: transparent;
+  }
+  
+  .btn-inc.loading::after, .btn-exp.loading::after, 
+  .btn-export.loading::after, .btn-import.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.8s ease-in-out infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
