@@ -36,13 +36,13 @@ A modern web application designed to help individuals and small businesses **tra
 
 ---
 
-## 🚀 Features
+## Features
 
 - **Expense & Income Tracker**: Add transactions with category, GST type, and timestamps.
-- **Dashboard Visualizations**: Interactive charts for cash flow, expense categories, and GST trends.
-- **Downloadable Reports**: Export your full transaction history as CSV for records or audits.
-- **Flexible Date-Time Selection**: Add entries for current or past dates.
 - **GST Calculation**: Auto-computes GST liability based on category-specific rates.
+- **Downloadable Reports**: Export your full transaction history as CSV for records or audits.
+- **Dashboard Visualizations**: Interactive charts for cash flow, expense categories, and GST trends.
+- **Flexible Date-Time Selection**: Add entries for current or past dates.
 - **ML Visualizer (Forecasting Module)**:
   - Predicts future income, expenses, and GST liability for the next 3 months
   - Highlights top expense category and income-to-expense health ratio
@@ -52,6 +52,7 @@ A modern web application designed to help individuals and small businesses **tra
 ## Screenshots
 
 ![Dashboard Screenshot](snippets/Home.png)
+![Dashboard Screenshot](snippets/Expense%20Tracker.png)
 ![Dashboard Screenshot](snippets/Visualization%201.png)
 ![Dashboard Screenshot](snippets/Visualization%202.png)
 ![Dashboard Screenshot](snippets/Insights%201.png)
@@ -59,16 +60,3 @@ A modern web application designed to help individuals and small businesses **tra
 
 ---
 
-## 📁 Project Structure
-
-```bash
-├── index.html             # Main landing page
-├── style.css              # Stylesheet for layout and design
-├── app.js                 # Handles transactions, UI interaction, and storage
-├── ml-visualizer.js       # ML-style predictions and insight generation (forecasts, ratios, top categories)
-├── charts.js              # Chart.js config for visualization components
-├── data/
-│   └── sample.csv         # Example exported CSV
-├── assets/
-│   └── icons, fonts, etc.
-└── README.md              # You're here!
