@@ -71,7 +71,7 @@ function filterTransactionsByTime(transactions, period) {
 
 // Update summary boxes with filtered transaction data
 function updateSummary(transactions) {
-    // Calculate totals from transactions
+    
     const income = transactions
         .filter(t => t.amount > 0)
         .reduce((sum, t) => sum + t.amount, 0);
@@ -120,13 +120,11 @@ function groupTransactionsByMonth(transactions) {
             grouped[monthYear].expense += Math.abs(transaction.amount);
         }
         
-        // Update running balance
         grouped[monthYear].balance += transaction.amount;
     });
     
     // Convert to arrays for Chart.js
     const labels = Object.keys(grouped).sort((a, b) => {
-        // Sort month-year strings chronologically
         const dateA = new Date(a);
         const dateB = new Date(b);
         return dateA - dateB;
@@ -145,18 +143,16 @@ function groupExpensesByCategory(transactions) {
     const gstByCategory = {};
     
     transactions
-        .filter(t => t.amount < 0) // Only expenses
+        .filter(t => t.amount < 0)
         .forEach(transaction => {
             const category = transaction.category || 'Uncategorized';
             const amount = Math.abs(transaction.amount);
             
-            // Sum up expenses by category
             if (!expensesByCategory[category]) {
                 expensesByCategory[category] = 0;
             }
             expensesByCategory[category] += amount;
             
-            // Calculate GST by category
             if (!gstByCategory[category]) {
                 gstByCategory[category] = 0;
             }
@@ -165,7 +161,6 @@ function groupExpensesByCategory(transactions) {
             gstByCategory[category] += gstAmount;
         });
     
-    // Sort categories by expense amount (descending)
     const sortedCategories = Object.keys(expensesByCategory).sort(
         (a, b) => expensesByCategory[b] - expensesByCategory[a]
     );
@@ -184,7 +179,6 @@ function groupExpensesByCategory(transactions) {
 function createIncomeVsExpenseChart(labels, incomeData, expenseData) {
     const ctx = document.getElementById('incomeVsExpenseChart').getContext('2d');
     
-    // Destroy existing chart if it exists
     if (incomeVsExpenseChart) {
         incomeVsExpenseChart.destroy();
     }
@@ -239,12 +233,10 @@ function createIncomeVsExpenseChart(labels, incomeData, expenseData) {
 function createCategoryChart(categories, amounts) {
     const ctx = document.getElementById('categoryChart').getContext('2d');
     
-    // Destroy existing chart if it exists
     if (categoryChart) {
         categoryChart.destroy();
     }
 
-    // Generate colors for each category
     const backgroundColors = categories.map((_, index) => 
         colors.categories[index % colors.categories.length]
     );
@@ -289,7 +281,6 @@ function createCategoryChart(categories, amounts) {
 function createBalanceTrendChart(labels, balanceData) {
     const ctx = document.getElementById('balanceTrendChart').getContext('2d');
     
-    // Destroy existing chart if it exists
     if (balanceTrendChart) {
         balanceTrendChart.destroy();
     }
@@ -336,12 +327,10 @@ function createBalanceTrendChart(labels, balanceData) {
 function createGSTByCategoryChart(categories, gstAmounts) {
     const ctx = document.getElementById('gstByCategory').getContext('2d');
     
-    // Destroy existing chart if it exists
     if (gstByCategoryChart) {
         gstByCategoryChart.destroy();
     }
     
-    // Generate colors for each category
     const backgroundColors = categories.map((_, index) => 
         colors.categories[index % colors.categories.length]
     );
@@ -385,18 +374,13 @@ function createGSTByCategoryChart(categories, gstAmounts) {
 
 // Main function to update all charts and summary
 function updateDashboard(timePeriod) {
-    // Get all transactions
     let transactions = getTransactions();
     
-    // Apply time filter
     transactions = filterTransactionsByTime(transactions, timePeriod);
     
-    // Update summary boxes
     updateSummary(transactions);
     
-    // Skip chart creation if there are no transactions
     if (transactions.length === 0) {
-        // Display "No data" message in charts
         const noDataMessage = {
             id: 'noDataMessage',
             beforeDraw: (chart) => {
@@ -419,35 +403,27 @@ function updateDashboard(timePeriod) {
         return;
     }
     
-    // Group transactions by month
     const { labels, incomeData, expenseData, balanceData } = groupTransactionsByMonth(transactions);
     
-    // Group expenses by category
     const { categories, amounts, gstAmounts } = groupExpensesByCategory(transactions);
     
-    // Create/update charts
     createIncomeVsExpenseChart(labels, incomeData, expenseData);
     createCategoryChart(categories, amounts);
     createBalanceTrendChart(labels, balanceData);
     createGSTByCategoryChart(categories, gstAmounts);
 }
 
-// Initialize the dashboard when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-    updateDashboard('all'); // Start with all-time data
+    updateDashboard('all');
     
-    // Add event listeners to filter buttons
     document.querySelectorAll('.filter-btn').forEach(button => {
         button.addEventListener('click', function() {
-            // Remove active class from all buttons
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            // Add active class to clicked button
             this.classList.add('active');
             
-            // Update dashboard with selected time period
             updateDashboard(this.dataset.period);
         });
     });

@@ -141,7 +141,7 @@
   }
   
   .chart-container:nth-child(1), .chart-container:nth-child(2){
-    width: 100%;
+    /* width: 100%; */
   }
 
   .chart-container:hover {

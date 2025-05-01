@@ -12,13 +12,11 @@ const gstDisplay = document.getElementById("gst-display");
 const exportBtn = document.getElementById('exportBtn');
 const storageKey = "business_transactions";
 
-// DUMMY TRANSACTIONS
 const dummyTransactions = [];
 
-// Initialize transactions with dummy data
 let transactions = [...dummyTransactions];
 
-// GST RATES BY CATEGORY
+// GST RATES
 const gstRates = {
     'Electronics & IT Equipment': 18,
     'Office Supplies': 12,
@@ -35,7 +33,6 @@ function addTransactionDOM(transaction) {
     const sign = transaction.amount < 0 ? '-' : '+';
     const item = document.createElement("li");
     
-    // Format date for display
     const transactionDate = new Date(transaction.datetime);
     const formattedDate = transactionDate.toLocaleDateString('en-IN', {
         day: '2-digit',
@@ -65,7 +62,6 @@ function addTransactionDOM(transaction) {
 // Set default datetime on load
 window.onload = function() {
     const now = new Date();
-    // Format for datetime-local input (YYYY-MM-DDTHH:MM)
     const formattedNow = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
                           .toISOString()
                           .slice(0, 16);
@@ -90,33 +86,28 @@ function calculateGST() {
 // DISPLAY BALANCE, INCOME, EXPENSES AND GST
 function updateValues() {
     const amounts = transactions.map(transaction => transaction.amount);
-  
-    // TOTAL BALANCE (income - expenses)
+
     const total = amounts.reduce((sum, amount) => sum + amount, 0).toFixed(2);
     
-    // TOTAL INCOME (positive amounts)
     const income = amounts
       .filter(amount => amount > 0)
       .reduce((sum, amount) => sum + amount, 0)
       .toFixed(2);
     
-    // TOTAL EXPENSES (negative amounts, converted to positive)
     const expense = (amounts
       .filter(amount => amount < 0)
       .reduce((sum, amount) => sum + amount, 0) * -1)
       .toFixed(2);
   
-    // Update the DOM
     balance.innerText = `₹${total}`;
     money_plus.innerText = `+₹${income}`;
     money_minus.innerText = `-₹${expense}`;
     
-    // Calculate and display GST
     const gstOwed = calculateGST();
     gstDisplay.textContent = `₹${gstOwed.toFixed(2)}`;
 }
 
-// ADD TRANSACTION (INCOME OR EXPENSE)
+// ADD TRANSACTION
 function addTransaction(e, type) {
     e.preventDefault();
 
@@ -129,17 +120,15 @@ function addTransaction(e, type) {
             amount: type === 'income' ? +amount.value : -amount.value,
             datetime: datetime.value,
             category: category.value,
-            type: type // 'income' or 'expense'
+            type: type
         };
         transactions.push(transaction);
         localStorage.setItem(storageKey, JSON.stringify(transactions));
         addTransactionDOM(transaction);
         updateValues();
 
-        // Clear form
         text.value = '';
         amount.value = '';
-        // Set datetime to current time again
         const now = new Date();
         const formattedNow = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
                             .toISOString()
@@ -169,17 +158,15 @@ function removeTransaction(id) {
     init();
 }
 
-// EXPORT TO CSV FUNCTION
+// EXPORT FUNCTION
 function exportToCSV() {
     if (transactions.length === 0) {
         alert("No transactions to export!");
         return;
     }
 
-    // Prepare CSV headers
     let csv = 'ID,Description,Amount,Date,Category,Type,GST Amount\n';
     
-    // Add transaction data
     transactions.forEach(t => {
         let gstAmount = 0;
         if (t.type === 'expense') {
@@ -190,7 +177,6 @@ function exportToCSV() {
         csv += `${t.id},"${t.text}",${t.amount},"${new Date(t.datetime).toLocaleString()}","${t.category}","${t.type}",${gstAmount.toFixed(2)}\n`;
     });
 
-    // Create download link
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -203,49 +189,42 @@ function exportToCSV() {
 
 // INIT FUNCTION
 function init() {
-    list.innerHTML = ''; // Clear the list before rendering
+    list.innerHTML = '';
 
-    // Loop through all transactions and add them to the DOM
     transactions.forEach(addTransactionDOM);
-    updateValues(); // Update balance, income, expense and GST
+    updateValues();
 }
 
 // EVENT LISTENERS
 document.querySelector('.btn-inc').addEventListener('click', function (e) {
-    addTransaction(e, 'income'); // Pass 'income' to add positive amount
+    addTransaction(e, 'income');
 });
 
 document.querySelector('.btn-exp').addEventListener('click', function (e) {
-    addTransaction(e, 'expense'); // Pass 'expense' to add negative amount
+    addTransaction(e, 'expense');
 });
 
 exportBtn.addEventListener('click', exportToCSV);
 
-// Initialize the app
 init();
 
 
 // IMPORT FUNCTION
 
-// Add these DOM element references at the top with your other DOM elements
 const importBtn = document.getElementById('importBtn');
 const fileInput = document.getElementById('fileInput');
 
-// Add this function to handle CSV imports
 function importFromCSV(csvText) {
-    // Parse CSV (simple implementation - consider using a library like PapaParse for production)
     const lines = csvText.split('\n');
     const headers = lines[0].split(',');
-    
-    // Find column indices
+
     const idIndex = headers.findIndex(h => h.trim().toLowerCase() === 'id');
     const descriptionIndex = headers.findIndex(h => h.trim().toLowerCase() === 'description');
     const amountIndex = headers.findIndex(h => h.trim().toLowerCase() === 'amount');
     const dateIndex = headers.findIndex(h => h.trim().toLowerCase() === 'date');
     const categoryIndex = headers.findIndex(h => h.trim().toLowerCase() === 'category');
     const typeIndex = headers.findIndex(h => h.trim().toLowerCase() === 'type');
-    
-    // Validate required columns
+
     if (descriptionIndex === -1 || amountIndex === -1) {
         alert('CSV must contain at least Description and Amount columns');
         return;
@@ -254,18 +233,14 @@ function importFromCSV(csvText) {
     let importedCount = 0;
     const importedTransactions = [];
     
-    // Process each line (skip header)
     for (let i = 1; i < lines.length; i++) {
-        if (!lines[i].trim()) continue; // Skip empty lines
+        if (!lines[i].trim()) continue;
         
-        // Split by comma, but handle quoted values that might contain commas
         const values = lines[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
-        if (values.length < 2) continue; // Skip malformed lines
+        if (values.length < 2) continue;
         
-        // Clean up quoted values
         const cleanValues = values.map(val => val.replace(/^"|"$/g, '').trim());
         
-        // Create transaction object
         const transaction = {
             id: idIndex !== -1 && cleanValues[idIndex] ? Number(cleanValues[idIndex]) : generateID(),
             text: descriptionIndex !== -1 ? cleanValues[descriptionIndex] : 'Imported item',
@@ -275,10 +250,8 @@ function importFromCSV(csvText) {
             type: typeIndex !== -1 && cleanValues[typeIndex] ? cleanValues[typeIndex].toLowerCase() : (Number(cleanValues[amountIndex]) >= 0 ? 'income' : 'expense')
         };
         
-        // Validate transaction
         if (isNaN(transaction.amount)) continue;
         
-        // Ensure amount sign matches type
         if (transaction.type === 'expense' && transaction.amount > 0) {
             transaction.amount = -Math.abs(transaction.amount);
         } else if (transaction.type === 'income' && transaction.amount < 0) {
@@ -289,11 +262,10 @@ function importFromCSV(csvText) {
         importedCount++;
     }
     
-    // Add to existing transactions
     if (importedCount > 0) {
         transactions = [...transactions, ...importedTransactions];
         localStorage.setItem(storageKey, JSON.stringify(transactions));
-        init(); // Refresh the UI
+        init();
         alert(`Successfully imported ${importedCount} transactions!`);
     } else {
         alert('No valid transactions found in the CSV file.');
@@ -309,7 +281,6 @@ fileInput.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
     
-    // Validate file type
     if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
         alert('Please select a CSV file');
         return;
@@ -325,11 +296,5 @@ fileInput.addEventListener('change', function(e) {
     };
     reader.readAsText(file);
     
-    // Reset file input
     fileInput.value = '';
 });
-
-
-// ========================================================================================================================================
-// DATA VISUALIZATION 
-

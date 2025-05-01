@@ -1,4 +1,4 @@
-// ML Visualization Module for GST Cash Ledger
+
 class MLVisualizer {
     constructor() {
         this.charts = {
@@ -8,16 +8,12 @@ class MLVisualizer {
         };
     }
 
-    // Initialize ML visualization
     async init() {
         try {
-            // Prepare data from local storage
             const transactions = this.getTransactionData();
             
-            // Generate insights
             this.generateInsights(transactions);
             
-            // Create visualizations
             this.createCashFlowChart(transactions);
             this.createGSTChart(transactions);
             this.createCategoryChart(transactions);
@@ -27,7 +23,6 @@ class MLVisualizer {
         }
     }
 
-    // Get and format transaction data from local storage
     getTransactionData() {
         const savedTransactions = localStorage.getItem('business_transactions');
         if (!savedTransactions) {
@@ -36,7 +31,6 @@ class MLVisualizer {
         
         const transactions = JSON.parse(savedTransactions);
         
-        // Process data for analysis
         return transactions.map(t => ({
             ...t,
             date: new Date(t.datetime),
@@ -46,9 +40,7 @@ class MLVisualizer {
         }));
     }
 
-    // Generate textual insights
     generateInsights(transactions) {
-        // Basic analysis (replace with your actual ML insights)
         const totalIncome = transactions
             .filter(t => t.isIncome)
             .reduce((sum, t) => sum + t.amount, 0);
@@ -64,7 +56,6 @@ class MLVisualizer {
                 return sum + (Math.abs(t.amount) * (rate / 100));
             }, 0);
             
-        // Most common expense category
         const categoryCounts = {};
         transactions
             .filter(t => t.isExpense && t.category)
@@ -73,7 +64,6 @@ class MLVisualizer {
             });
         const topCategory = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
         
-        // Update DOM with insights
         document.getElementById('insight1').textContent = 
             `Based on your current spending patterns, your estimated monthly GST liability is ₹${(gstLiability / 3).toFixed(2)}.`;
             
@@ -85,11 +75,9 @@ class MLVisualizer {
             `A ratio above 1.5 is generally considered healthy for small businesses.`;
     }
 
-    // Create cash flow forecast chart
     createCashFlowChart(transactions) {
         const ctx = document.getElementById('cashFlowChart').getContext('2d');
         
-        // Group by month (simplified - replace with your actual forecast)
         const monthlyData = {};
         transactions.forEach(t => {
             const monthYear = `${t.date.getFullYear()}-${t.date.getMonth()}`;
@@ -104,7 +92,6 @@ class MLVisualizer {
             }
         });
         
-        // Sort by date and prepare chart data
         const sortedMonths = Object.keys(monthlyData).sort();
         const last3Months = sortedMonths.slice(-3);
         const forecastMonths = [
@@ -123,11 +110,9 @@ class MLVisualizer {
                     {
                         label: 'Income',
                         data: forecastMonths.map((m, i) => {
-                            // For historical data
                             if (i < last3Months.length) {
                                 return monthlyData[m]?.income || 0;
                             }
-                            // Forecast (simplified - replace with your ML prediction)
                             const lastIncome = monthlyData[last3Months[last3Months.length - 1]]?.income || 0;
                             return lastIncome * (1 + (0.05 * (i - last3Months.length + 1)));
                         }),
@@ -139,11 +124,10 @@ class MLVisualizer {
                     {
                         label: 'Expenses',
                         data: forecastMonths.map((m, i) => {
-                            // For historical data
                             if (i < last3Months.length) {
                                 return monthlyData[m]?.expenses || 0;
                             }
-                            // Forecast (simplified - replace with your ML prediction)
+                            
                             const lastExpense = monthlyData[last3Months[last3Months.length - 1]]?.expenses || 0;
                             return lastExpense * (1 + (0.03 * (i - last3Months.length + 1)));
                         }),
@@ -188,7 +172,6 @@ class MLVisualizer {
     createGSTChart(transactions) {
         const ctx = document.getElementById('gstChart').getContext('2d');
         
-        // Calculate GST by month (simplified)
         const monthlyGST = {};
         transactions.forEach(t => {
             if (t.isExpense && t.category && t.category !== 'Non-Taxable') {
@@ -200,7 +183,6 @@ class MLVisualizer {
             }
         });
         
-        // Sort by date and prepare chart data
         const sortedMonths = Object.keys(monthlyGST).sort();
         const last3Months = sortedMonths.slice(-3);
         const forecastMonths = [
@@ -265,7 +247,6 @@ class MLVisualizer {
     createCategoryChart(transactions) {
         const ctx = document.getElementById('categoryChart').getContext('2d');
         
-        // Calculate category totals
         const categoryTotals = {};
         transactions
             .filter(t => t.isExpense && t.category)
@@ -274,11 +255,9 @@ class MLVisualizer {
                 categoryTotals[t.category] = (categoryTotals[t.category] || 0) + amount;
             });
         
-        // Prepare data for chart
         const categories = Object.keys(categoryTotals);
         const amounts = categories.map(c => categoryTotals[c]);
         
-        // Create chart
         this.charts.categories = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -327,7 +306,6 @@ class MLVisualizer {
         });
     }
 
-    // Helper methods
     getGSTRate(category) {
         const gstRates = {
             'Electronics & IT Equipment': 18,
